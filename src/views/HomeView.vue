@@ -9,7 +9,7 @@
                 <div class="gutter-box">
                     <a-row :gutter="[16, 16]">
                         <!-- List of product here a-col is 1 product -->
-                        <a-col :span="6" v-for="product in products" :key="product._id" style="user-select: none;">
+                        <a-col :span="6" v-for="product in displayedProducts" :key="product._id" style="user-select: none;">
                             <a-card hoverable style="width: 200px;">
                                 <template #cover>
                                     <img :alt="product.name" :src="product.image" height="180" style="object-fit: cover;" />
@@ -31,7 +31,7 @@
             </a-col>
             <a-col class="gutter-row" :span="6"></a-col>
             <a-col class="gutter-row" :span="18" style="display: flex; justify-content: center;">
-                <a-pagination v-model:current="current" :total="totalProducts" :default-page-size="8" />
+                <a-pagination v-model:current="current" :total="totalProducts" @change="handleChangePage" :page-size="8" />
             </a-col>
 
         </a-row>
@@ -40,7 +40,7 @@
 
 <script setup>
 import { PlusCircleOutlined } from '@ant-design/icons-vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed  } from 'vue';
 import axios from 'axios';
 
 const current = ref(1);
@@ -58,4 +58,14 @@ onMounted(async () => {
         console.error('Error fetching products:', error);
     }
 });
+
+const displayedProducts = computed(() => {
+  const start = (current.value - 1) * 8;
+  const end = start + 8;
+  return products.value.slice(start, end);
+});
+
+const handleChangePage = (pageNumber) => {
+    current.value = pageNumber;
+};
 </script>
