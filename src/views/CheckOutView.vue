@@ -54,7 +54,7 @@
                         <strong style="font-size: 18px; text-align: center; display: block;">Detail Order</strong>
                     </template>
                     <template #footer>
-                        <a-button type="primary" @click="">Checkout</a-button>
+                        <a-button type="primary" @click="checkout">Checkout</a-button>
                     </template>
                 </a-list>
             </a-col>
@@ -67,7 +67,10 @@ import { computed, ref, unref, onMounted } from 'vue';
 import { useCartStore } from '../store/cartStore';
 import { message } from 'ant-design-vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
 
+
+const router = useRouter();
 
 interface DataType {
     key: string | number;
@@ -211,6 +214,23 @@ const data = [
     { type: 'shippingFee', value: '$10' },
     { type: 'totalFee', value: 'Rendered Total Fee' },
 ];
+
+// Checkout
+const checkout = async () => {
+    try {
+        const order = await axios.post('http://localhost:8080/api/v1/orders', {}, {
+            withCredentials: true,
+        });
+        
+        if (order.status === 201) {
+            await cartStore.fetchUserCartRequest()
+            router.push({ path: `/orders/${order.data.order._id}` });
+        }
+
+    } catch (error) {
+        message.error('Nothing in your cart, please add product then checkout!', 2);
+    }
+};
 
 onMounted(async () => {
     await cartStore.fetchUserCartRequest();
