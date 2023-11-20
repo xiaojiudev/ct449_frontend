@@ -8,6 +8,7 @@ export const useCartStore = defineStore('cart', {
     state: () => ({
         totalItemsInCart: Number(localStorage.getItem('totalItemsInCart')) || 0,
         cartItems: JSON.parse(localStorage.getItem('cartItems')) || [],
+        totalPrice: Number(localStorage.getItem('totalPrice')) || 0.00,
     }),
     actions: {
         async updateTotalItems(count) {
@@ -20,7 +21,6 @@ export const useCartStore = defineStore('cart', {
                     withCredentials: true,
                 });
 
-                console.log(cartResponse.data);
                 const cartItems = cartResponse.data.message.items.map((item) => ({
                     product: item.product,
                     name: item.name,
@@ -31,7 +31,9 @@ export const useCartStore = defineStore('cart', {
                     image: item.image,
                 }));
 
-                this.setCartItems(cartItems, cartItems.length);
+                console.log(cartResponse.data.message.totalPrice);
+
+                this.setCartItems(cartItems, cartItems.length, cartResponse.data.message.totalPrice);
             } catch (error) {
                 console.error('Error fetching user cart:', error);
             }
@@ -58,16 +60,17 @@ export const useCartStore = defineStore('cart', {
                         withCredentials: true,
                     }
                 );
-
             } catch (error) {
                 throw new Error('Error when deleting product from cart');
             }
         },
-        setCartItems(items, quantity) {
+        setCartItems(items, quantity, totalPrice) {
             this.cartItems = items;
             this.totalItemsInCart = quantity;
+            this.totalPrice = totalPrice;
             localStorage.setItem('cartItems', JSON.stringify(items));
             localStorage.setItem('totalItemsInCart', JSON.stringify(quantity));
+            localStorage.setItem('totalPrice', JSON.stringify(totalPrice));
         },
         retrieveCartItems() {
             const storedCartItems = localStorage.getItem('cartItems');
@@ -77,8 +80,11 @@ export const useCartStore = defineStore('cart', {
         },
         clearCartItems() {
             this.cartItems = [];
+            this.totalItemsInCart = 0;
+            this.totalPrice = 0;
             localStorage.removeItem('cartItems');
             localStorage.removeItem('totalItemsInCart');
+            localStorage.removeItem('totalPrice');
         },
         setTotalItemsInCart(value) {
             this.totalItemsInCart = value ?? 0;

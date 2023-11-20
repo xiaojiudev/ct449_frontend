@@ -8,11 +8,14 @@
             <a-col :span="16">
                 <a-table :row-selection="rowSelection" :columns="columns" :data-source="cartItems">
                     <template #bodyCell="{ column, text, record }">
+                        <template v-if="column.dataIndex === 'price'">
+                            <div>${{ text.toFixed(2) }}</div>
+                        </template>
                         <template v-if="column.dataIndex === 'image'">
                             <a-image :width="48" :height="48" style="border-radius: 5px; object-fit: cover;" :src="text" />
                         </template>
                         <template v-if="column.dataIndex === 'subTotal'">
-                            <div v-html="record.quantity * record.price"></div>
+                            <div>${{ (record.quantity * record.price).toFixed(2) }}</div>
                         </template>
                         <template v-if="column.dataIndex === 'quantity'">
                             <a-input-number id="inputNumber" v-model:value="record.quantity" defaultValue="1" :min="1"
@@ -24,7 +27,37 @@
                     </template>
                 </a-table>
             </a-col>
-            <a-col :span="8">total column</a-col>
+            <a-col :span="2"></a-col>
+            <a-col :span="6">
+                <a-list bordered :data-source="data">
+                    <template #renderItem="{ item }">
+                        <a-list-item>
+                            <template v-if="item.type === 'address'">
+                                <strong>Address:</strong>
+                                <span
+                                    style="display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">{{
+                                        item.value }}</span>
+                            </template>
+                            <template v-if="item.type === 'shippingMethod'">
+                                <strong>Shipping Method:</strong>
+                                <a-radio :checked="true">COD</a-radio>
+                            </template>
+                            <template v-if="item.type === 'shippingFee'">
+                                <strong>Shipping Fee:</strong> {{ item.value }}
+                            </template>
+                            <template v-else-if="item.type === 'totalFee'">
+                                <strong>Total Fee:</strong> {{ cartStore.totalPrice }}
+                            </template>
+                        </a-list-item>
+                    </template>
+                    <template #header>
+                        <strong style="font-size: 18px; text-align: center; display: block;">Detail Order</strong>
+                    </template>
+                    <template #footer>
+                        <a-button type="primary" @click="">Checkout</a-button>
+                    </template>
+                </a-list>
+            </a-col>
         </a-row>
     </div>
 </template>
@@ -79,10 +112,6 @@ const updateQuantity = async (record) => {
     // Update quantity logic
     const { key, quantity } = record;
 
-    console.log(`Quantity change: ${quantity} with key: ${key}`);
-
-    console.log("product id", key);
-
     try {
         await axios.post('http://localhost:8080/api/v1/carts',
             {
@@ -96,14 +125,15 @@ const updateQuantity = async (record) => {
                 },
             },
         );
+
+        await cartStore.fetchUserCartRequest()
     } catch (error) {
         console.error('Error adding product to cart:', error);
     }
 };
 
 const removeItem = async (key) => {
-    // Remove item logic
-    console.log(key);
+
     await cartStore.removeAnItemRequest(key);
     await cartStore.fetchUserCartRequest();
 
@@ -118,10 +148,6 @@ const removeItem = async (key) => {
 
     message.success('Deleted product from cart successfully');
 
-};
-
-const getTotalPrice = () => {
-    // Calculate total price logic
 };
 
 
@@ -177,6 +203,14 @@ const removeItemsByKeys = async (keys) => {
         message.error('Failed to delete selected products from cart');
     }
 };
+
+// Right column
+const data = [
+    { type: 'address', value: '137/24 Mau Than street, Ninh Kieu district, Can Tho City' },
+    { type: 'shippingMethod' },
+    { type: 'shippingFee', value: '$10' },
+    { type: 'totalFee', value: 'Rendered Total Fee' },
+];
 
 onMounted(async () => {
     await cartStore.fetchUserCartRequest();
