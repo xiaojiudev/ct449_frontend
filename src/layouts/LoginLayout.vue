@@ -1,6 +1,6 @@
 <template>
   <a-layout>
-    <a-layout-content>
+    <a-layout-content >
       <!-- Content here -->
       <RouterView />
     </a-layout-content>
@@ -8,6 +8,6 @@
   <!-- <slot /> -->
 </template>
 
-<script>
-export default {}
+<script lang="ts" setup>
+
 </script>

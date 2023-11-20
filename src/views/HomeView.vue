@@ -12,7 +12,8 @@
                     <div class="gutter-box">
                         <a-row :gutter="[16, 16]">
                             <!-- List of product here a-col is 1 product -->
-                            <a-col :span="6" v-for="product in displayedProducts" :key="product._id" style="user-select: none;">
+                            <a-col :span="6" v-for="product in displayedProducts" :key="product._id"
+                                style="user-select: none;">
                                 <RouterLink :to="`/products/${product._id}`">
                                     <a-card hoverable style="width: 200px;">
                                         <template #cover>
@@ -20,7 +21,12 @@
                                                 style="object-fit: cover;" />
                                         </template>
                                         <template #actions>
-                                            <PlusCircleOutlined />
+                                            <a-button type="dashed" shape="circle" size="default"
+                                                @click.prevent="addToCart(product._id)">
+                                                <template #icon>
+                                                    <ShoppingCartOutlined />
+                                                </template>
+                                            </a-button>
                                         </template>
                                         <a-card-meta :title="product.name">
                                             <template #description>
@@ -32,29 +38,71 @@
                                     </a-card>
                                 </RouterLink>
                             </a-col>
-    
+
                         </a-row>
-    
+
                     </div>
                 </a-col>
                 <a-col class="gutter-row" :span="6"></a-col>
                 <a-col class="gutter-row" :span="18" style="display: flex; justify-content: center;">
-                    <a-pagination v-model:current="current" :total="totalProducts" @change="handleChangePage" :page-size="8" />
+                    <a-pagination v-model:current="current" :total="totalProducts" @change="handleChangePage"
+                        :page-size="8" />
                 </a-col>
-    
+
             </a-row>
         </main>
     </div>
 </template>
 
 <script setup>
-import { PlusCircleOutlined } from '@ant-design/icons-vue';
+import { ShoppingCartOutlined } from '@ant-design/icons-vue';
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import { message } from 'ant-design-vue';
+import { useCartStore } from '../store/cartStore'; 
+
+
 
 const current = ref(1);
 const products = ref([]);
 const totalProducts = ref(0);
+const cartStore = useCartStore(); 
+
+
+const addToCart = async (productId) => {
+    try {
+        const addtoCartResponse = await axios.post('http://localhost:8080/api/v1/carts',
+            {
+                productId,
+                quantity: 1
+            },
+            {
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            },
+        );
+
+        if (addtoCartResponse.status == 201) {
+            message.success('Product added to cart successfully');
+        } else {
+            message.error('Add product to cart failed')
+        }
+
+        const cartResponse = await axios.get('http://localhost:8080/api/v1/carts', {
+            withCredentials: true
+        });
+        const cartItems = cartResponse.data.message.items;
+
+        const totalItemsInCart = cartItems.reduce((total, item) => total + item.quantity, 0);
+        cartStore.updateTotalItems(totalItemsInCart);
+
+    } catch (error) {
+        console.error('Error adding product to cart:', error);
+        message.error('Failed to add product to cart');
+    }
+}
 
 onMounted(async () => {
     try {

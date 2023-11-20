@@ -1,27 +1,37 @@
+<template>
+    <component :is="currentLayout">
+        <router-view />
+    </component>
+</template>
+
 <script setup lang="ts">
-import DefaulLayout from './DefaulLayout.vue'
-import { markRaw, ref, watch } from 'vue'
+import DefaultLayout from './DefaultLayout.vue'
+import LoginLayout from './LoginLayout.vue'
+import { shallowRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-const layout = ref()
+const layoutMap = {
+    DefaultLayout,
+    LoginLayout,
+}
+
+const currentLayout = shallowRef(DefaultLayout)
 const route = useRoute()
 
 watch(
     () => route.meta?.layout as string | undefined,
     async (metaLayout) => {
         try {
-            const component = metaLayout && await import(/* @vite-ignore */ `./${metaLayout}.vue`)
-            layout.value = markRaw(component?.default || DefaulLayout)
+            // if (metaLayout && layoutMap[metaLayout]) {
+            //     currentLayout.value = LoginLayout
+            // } else {
+            //     currentLayout.value = DefaultLayout
+            // }
+            currentLayout.value = (metaLayout && layoutMap[metaLayout]) || DefaultLayout
         } catch (e) {
-            layout.value = markRaw(DefaulLayout)
+            currentLayout.value = DefaultLayout
         }
     },
     { immediate: true }
 )
 </script>
-
-<template>
-    <component :is="layout">
-        <router-view />
-    </component>
-</template>
