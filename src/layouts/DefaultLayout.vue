@@ -50,7 +50,9 @@
                                     </template>
                                 </a-list>
                                 <div style="width: 100%; display: flex; justify-content: flex-end; padding: 16px 12px;">
-                                    <a-button type="primary" size="large">Check out</a-button>
+                                    <a-button type="primary" size="large">
+                                        <RouterLink to="/checkout">Check out</RouterLink>
+                                    </a-button>
                                 </div>
                             </a-menu>
 
@@ -122,11 +124,11 @@ const router = useRouter();
 
 const handleLogout = async () => {
     try {
+        await cartStore.clearCartItems();
         await axios.get('http://localhost:8080/api/v1/auth/logout')
         authStore.logout();
         router.push({ path: '/' });
         message.success('Logged out successfully');
-        await cartStore.clearCartItems();
         window.location.reload();
     } catch (error) {
         // Handle error

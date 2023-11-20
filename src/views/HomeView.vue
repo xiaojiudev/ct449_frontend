@@ -60,6 +60,7 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { message } from 'ant-design-vue';
 import { useCartStore } from '../store/cartStore';
+import { useAuthStore } from '../store/authStore';
 
 
 
@@ -67,6 +68,7 @@ const current = ref(1);
 const products = ref([]);
 const totalProducts = ref(0);
 const cartStore = useCartStore();
+const authStore = useAuthStore();
 
 
 const addToCart = async (productId) => {
@@ -86,7 +88,7 @@ const addToCart = async (productId) => {
 
         if (addtoCartResponse.status == 201) {
             message.success('Product added to cart successfully');
-            await cartStore.fetchUserCart();
+            await cartStore.fetchUserCartRequest();
         } else {
             message.error('Add product to cart failed')
         }
@@ -106,8 +108,11 @@ onMounted(async () => {
             products.value = response.data.product;
             totalProducts.value = response.data.total_products;
         }
-        await cartStore.fetchUserCart();
-        await showBadge();
+
+        if(authStore.getIsLoggedIn === true) {
+            await cartStore.fetchUserCartRequest();
+            await showBadge();
+        }
 
     } catch (error) {
         console.error('Error fetching products:', error);

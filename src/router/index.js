@@ -29,6 +29,12 @@ const router = createRouter({
       component: LoginView,
       meta: { layout: 'LoginLayout' },
     },
+    {
+      path: '/checkout',
+      name: 'checkout',
+      component: () => import('../views/CheckoutView.vue'),
+
+    },
   ]
 })
 
