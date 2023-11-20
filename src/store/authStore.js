@@ -2,14 +2,14 @@ import { defineStore } from 'pinia';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
-        isLoggedIn: !!getCookie('token'), 
+        isLoggedIn: !!getCookie('token'),
     }),
     actions: {
         login(isLoggedIn) {
             this.isLoggedIn = isLoggedIn;
         },
         logout() {
-            document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;'; 
+            document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
             this.isLoggedIn = false;
         }
     },

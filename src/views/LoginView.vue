@@ -78,8 +78,7 @@ const onFinish = async (values: any) => {
         if (msg === "Login successful!") {
             authStore.login(true);
             message.success('Login successfully');
-            await cartStore.fetchTotalItemsInCart();
-            await cartStore.fetchUserCart();
+            await cartStore.fetchUserCart()
             router.push({ path: '/' })
         } else {
             message.error('Please check your account and try again');

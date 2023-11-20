@@ -59,14 +59,14 @@ import { ShoppingCartOutlined } from '@ant-design/icons-vue';
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { message } from 'ant-design-vue';
-import { useCartStore } from '../store/cartStore'; 
+import { useCartStore } from '../store/cartStore';
 
 
 
 const current = ref(1);
 const products = ref([]);
 const totalProducts = ref(0);
-const cartStore = useCartStore(); 
+const cartStore = useCartStore();
 
 
 const addToCart = async (productId) => {
@@ -86,17 +86,12 @@ const addToCart = async (productId) => {
 
         if (addtoCartResponse.status == 201) {
             message.success('Product added to cart successfully');
+            await cartStore.fetchUserCart();
         } else {
             message.error('Add product to cart failed')
         }
 
-        const cartResponse = await axios.get('http://localhost:8080/api/v1/carts', {
-            withCredentials: true
-        });
-        const cartItems = cartResponse.data.message.items;
-
-        const totalItemsInCart = cartItems.reduce((total, item) => total + item.quantity, 0);
-        cartStore.updateTotalItems(totalItemsInCart);
+        await showBadge();
 
     } catch (error) {
         console.error('Error adding product to cart:', error);
@@ -111,10 +106,25 @@ onMounted(async () => {
             products.value = response.data.product;
             totalProducts.value = response.data.total_products;
         }
+        await cartStore.fetchUserCart();
+        await showBadge();
+
     } catch (error) {
         console.error('Error fetching products:', error);
     }
 });
+
+
+const showBadge = async () => {
+    const cartResponse = await axios.get('http://localhost:8080/api/v1/carts', {
+        withCredentials: true
+    });
+
+    if (cartResponse.status === 200) {
+        const cartItems = cartResponse.data.message.items;
+        await cartStore.setTotalItemsInCart(cartItems.length);
+    }
+}
 
 const displayedProducts = computed(() => {
     const start = (current.value - 1) * 8;

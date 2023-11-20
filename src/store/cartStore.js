@@ -11,18 +11,7 @@ export const useCartStore = defineStore('cart', {
     actions: {
         async updateTotalItems(count) {
             this.totalItemsInCart = count;
-        },
-        async fetchTotalItemsInCart() {
-            try {
-                const cartResponse = await axios.get('http://localhost:8080/api/v1/carts', {
-                    withCredentials: true
-                });
-                const cartItems = cartResponse.data.message.items;
-                const totalItemsInCart = cartItems.reduce((total, item) => total + item.quantity, 0);
-                this.totalItemsInCart = totalItemsInCart;
-            } catch (error) {
-                console.error('CartStore - Error fetching cart items:', error);
-            }
+            localStorage.setItem('totalItemsInCart', JSON.stringify(count));
         },
         async fetchUserCart() {
             try {
@@ -31,10 +20,12 @@ export const useCartStore = defineStore('cart', {
                 });
 
                 const cartItems = cartResponse.data.message.items.map((item) => ({
-                    productName: item.product.name,
+                    product: item.product,
+                    name: item.name,
                     quantity: item.quantity,
-                    totalPrice: item.price * item.quantity,
-                    productImage: item.product.image,
+                    price: item.price,
+                    subTotal: item.subTotal,
+                    image: item.image,
                 }));
 
                 this.setCartItems(cartItems);
@@ -44,6 +35,21 @@ export const useCartStore = defineStore('cart', {
         },
         setCartItems(items) {
             this.cartItems = items;
+            localStorage.setItem('cartItems', JSON.stringify(items));
         },
+        clearCartItems() {
+            this.cartItems = [];
+            localStorage.removeItem('cartItems');
+            localStorage.removeItem('totalItemsInCart');
+        },
+        retrieveCartItems() {
+            const storedCartItems = localStorage.getItem('cartItems');
+            if (storedCartItems) {
+                this.cartItems = JSON.parse(storedCartItems);
+            }
+        },
+        setTotalItemsInCart(value) {
+            this.totalItemsInCart = value ?? 0;
+        }
     }
 })

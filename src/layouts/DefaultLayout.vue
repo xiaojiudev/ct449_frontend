@@ -25,21 +25,33 @@
                         </a-badge>
                         <template #overlay>
                             <a-menu>
-                                <a-list item-layout="horizontal" :data-source="data">
+                                <a-list item-layout="horizontal" :data-source="cartStore.cartItems">
                                     <template #renderItem="{ item }">
                                         <a-list-item>
-                                            <a-list-item-meta
-                                                description="Ant Design, a design language for background applications, is refined by Ant UED Team">
+                                            <a-list-item-meta>
                                                 <template #title>
-                                                    <a href="https://www.antdv.com/">{{ item.title }}</a>
+                                                    <RouterLink :to="`/products/${item.product}`">{{ item.name }}</RouterLink>
                                                 </template>
                                                 <template #avatar>
-                                                    <a-avatar src="https://joeschmoe.io/api/v1/random" />
+                                                    <a-avatar :src="item.image" shape="square" />
                                                 </template>
                                             </a-list-item-meta>
+                                            <div style="display: flex; justify-content: space-between; width: 30%;">
+                                                <div>${{item.price}}</div>
+                                                <div>{{item.quantity}}</div>
+                                                <div>${{item.subTotal}}</div>
+                                            </div>
+                                            <template #actions>
+                                                <a key="list-loadmore-more">
+                                                    <DeleteOutlined />
+                                                </a>
+                                            </template>
                                         </a-list-item>
                                     </template>
                                 </a-list>
+                                <div style="width: 100%; display: flex; justify-content: flex-end; padding: 16px 12px;">
+                                    <a-button type="primary" size="large">Check out</a-button>
+                                </div>
                             </a-menu>
 
                         </template>
@@ -92,12 +104,11 @@
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { ref } from 'vue';
 import { message } from 'ant-design-vue';
-import { ShoppingCartOutlined, LoginOutlined, UserOutlined } from '@ant-design/icons-vue';
+import { ShoppingCartOutlined, LoginOutlined, UserOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore'; // Import the cart store
 
 import axios from 'axios'
-
 
 
 
@@ -112,34 +123,16 @@ const router = useRouter();
 const handleLogout = async () => {
     try {
         await axios.get('http://localhost:8080/api/v1/auth/logout')
-
         authStore.logout();
         router.push({ path: '/' });
         message.success('Logged out successfully');
+        await cartStore.clearCartItems();
         window.location.reload();
     } catch (error) {
         // Handle error
         message.error('Failed to logout');
     }
 };
-
-interface DataItem {
-    title: string;
-}
-const data: DataItem[] = [
-    {
-        title: 'Ant Design Title 1',
-    },
-    {
-        title: 'Ant Design Title 2',
-    },
-    {
-        title: 'Ant Design Title 3',
-    },
-    {
-        title: 'Ant Design Title 4',
-    },
-];
 
 </script>
 
