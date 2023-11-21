@@ -36,7 +36,7 @@
                     </a-drawer>
                 </template>
                 <template v-if="column.dataIndex === 'status'">
-                    <a-tag :color="text === 'pending' ? 'pink' : text === 'delivered' ? 'cyan' : 'green'">{{ text }}</a-tag>
+                    <a-tag :color="text === 'pending' ? 'pink' : text === 'delivered' ? 'cyan' : text ==='paid' ? 'green': 'red'">{{ text }}</a-tag>
                 </template>
                 <template v-if="column.dataIndex === 'operation'">
                     <a-popconfirm title="Sure to received?" :disabled="!shouldShowReceivedButton(record.status)"
@@ -105,7 +105,7 @@ const columns = [
         dataIndex: 'status',
     },
     {
-        title: 'operation',
+        title: 'Operation',
         dataIndex: 'operation',
     },
 ];
@@ -113,19 +113,6 @@ const dataSource: Ref<DataItem[]> = ref([]);
 
 const currentOrderItems: Ref<OrderItem[]> = ref([]);
 const open = ref<boolean>(false);
-
-
-
-const count = computed(() => dataSource.value.length + 1);
-const editableData: UnwrapRef<Record<string, DataItem>> = reactive({});
-
-const edit = (key: string) => {
-    editableData[key] = cloneDeep(dataSource.value.filter(item => key === item.key)[0]);
-};
-const save = (key: string) => {
-    Object.assign(dataSource.value.filter(item => key === item.key)[0], editableData[key]);
-    delete editableData[key];
-};
 
 const onConfirm = async (orderId: string) => {
 

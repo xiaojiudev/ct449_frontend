@@ -17,12 +17,3 @@
   <!-- <slot /> -->
 </template>
 
-<script lang="ts" setup>
-
-</script>
-
-<style>
-.section-login {
-
-}
-</style>

@@ -8,7 +8,7 @@
             :sub-title="subTitle">
             <template #extra>
                 <a-button type="primary">
-                    <RouterLink to="/">Track Orders</RouterLink>
+                    <RouterLink to="/myOrders">Track Orders</RouterLink>
                 </a-button>
                 <a-button key="buy">
                     <RouterLink to="/">Buy Again</RouterLink>
