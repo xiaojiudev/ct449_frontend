@@ -43,10 +43,13 @@
                                 <a-radio :checked="true">COD</a-radio>
                             </template>
                             <template v-if="item.type === 'shippingFee'">
-                                <strong>Shipping Fee:</strong> {{ item.value }}
+                                <strong>Shipping Fee:</strong> {{ cartStore.totalPrice ? item.value : 0 }}
+                            </template>
+                            <template v-else-if="item.type === 'merchandiseFee'">
+                                <strong>Merchandise Fee:</strong> {{ cartStore.totalPrice }}
                             </template>
                             <template v-else-if="item.type === 'totalFee'">
-                                <strong>Total Fee:</strong> {{ cartStore.totalPrice }}
+                                <strong>Total Fee:</strong> {{ cartStore.totalPrice ? cartStore.totalPrice + 10 : 0 }}
                             </template>
                         </a-list-item>
                     </template>
@@ -212,7 +215,8 @@ const data = [
     { type: 'address', value: '137/24 Mau Than street, Ninh Kieu district, Can Tho City' },
     { type: 'shippingMethod' },
     { type: 'shippingFee', value: '$10' },
-    { type: 'totalFee', value: 'Rendered Total Fee' },
+    { type: 'merchandiseFee' },
+    { type: 'totalFee' },
 ];
 
 // Checkout
@@ -221,7 +225,7 @@ const checkout = async () => {
         const order = await axios.post('http://localhost:8080/api/v1/orders', {}, {
             withCredentials: true,
         });
-        
+
         if (order.status === 201) {
             await cartStore.fetchUserCartRequest()
             router.push({ path: `/orders/${order.data.order._id}` });

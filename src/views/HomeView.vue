@@ -6,7 +6,9 @@
         <main>
             <a-row :gutter="[24, 24]">
                 <a-col class="gutter-row" :span="6">
-                    <div class="gutter-box">left sidebar</div>
+                    <div class="gutter-box">
+                        <a-menu v-model:selectedKeys="currentSidebar" mode="vertical" :items="items" />
+                    </div>
                 </a-col>
                 <a-col class="gutter-row" :span="18">
                     <div class="gutter-box">
@@ -109,7 +111,7 @@ onMounted(async () => {
             totalProducts.value = response.data.total_products;
         }
 
-        if(authStore.getIsLoggedIn === true) {
+        if (authStore.getIsLoggedIn === true) {
             await cartStore.fetchUserCartRequest();
             await showBadge();
         }
@@ -140,4 +142,31 @@ const displayedProducts = computed(() => {
 const handleChangePage = (pageNumber) => {
     current.value = pageNumber;
 };
+
+import { h, } from 'vue';
+import { UnorderedListOutlined, RightOutlined } from '@ant-design/icons-vue';
+
+const currentSidebar = ref(['mail']);
+const items = ref([
+    {
+        key: 'category',
+        icon: () => h(UnorderedListOutlined),
+        label: 'Category',
+        title: 'Category',
+    },
+    { type: 'divider' },
+    {
+        key: 'all',
+        icon: () => h(RightOutlined),
+        label: 'All Products',
+        title: 'All Products',
+    },
+    {
+        key: 'flower',
+        icon: () => h(RightOutlined),
+        label: 'Flower',
+        title: 'Flower',
+    },
+
+]);
 </script>
