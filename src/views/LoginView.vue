@@ -1,7 +1,7 @@
 <template>
     <div
         style="background-color: white;width: 400px; padding: 48px 16px; border: 1px solid rgb(235, 237, 240); box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); border-radius: 5px;">
-        <a-form :model="formState" name="normal_login" class="login-form" @finish="onFinish" @finishFailed="onFinishFailed"
+        <a-form :model="formState" name="login" class="login-form" @finish="onFinish" @finishFailed="onFinishFailed"
             :label-col="{ span: 4 }" :wrapper-col="{ span: 8 }">
             <a-form-item label="Email" name="email" :label-col="{ offset: 0, span: 4 }"
                 :wrapper-col="{ offset: 1, span: 20 }"
@@ -35,7 +35,7 @@
                     Log in
                 </a-button>
                 <a-button type="dashed" style="margin-left: 32px;">
-                    Register
+                    <RouterLink to="/register">Register</RouterLink>
                 </a-button>
             </a-form-item>
 

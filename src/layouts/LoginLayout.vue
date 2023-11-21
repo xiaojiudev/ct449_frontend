@@ -3,7 +3,7 @@
     <section style="width: 33.33%;">
       <div style="display: flex; flex-direction: column; height: 100%; color: white;">
         <a href="/" style="position: absolute; z-index: 10; top: 20px; left: 40px; font-size: 28px; font-family: cursive; color: #fff; font-weight: 400; text-decoration: none;">Dandelion</a>
-        <video src="../../public/signin.mp4" poster="../../public/thumbnail1.png" style="display: flex; width: 100%; height: 100%; object-fit: cover;" autoplay loop muted></video>
+        <video src="/signin.mp4" poster="/thumbnail1.png" style="display: flex; width: 100%; height: 100%; object-fit: cover;" autoplay loop muted></video>
       </div>
     </section >
     <section style="flex: 1 1 0%;">
