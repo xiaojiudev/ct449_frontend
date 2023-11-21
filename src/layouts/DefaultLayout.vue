@@ -37,12 +37,12 @@
                                                 </template>
                                             </a-list-item-meta>
                                             <div style="display: flex; justify-content: space-between; width: 30%;">
-                                                <div>${{item.price}}</div>
+                                                <div>${{(item.price).toFixed(2)}}</div>
                                                 <div>{{item.quantity}}</div>
-                                                <div>${{item.subTotal}}</div>
+                                                <div>${{(item.subTotal).toFixed(2)}}</div>
                                             </div>
                                             <template #actions>
-                                                <a key="list-loadmore-more">
+                                                <a key="list-loadmore-more" @click="cartStore.removeAnItemRequest(item.product)">
                                                     <DeleteOutlined />
                                                 </a>
                                             </template>
@@ -127,7 +127,7 @@ const handleLogout = async () => {
         await cartStore.clearCartItems();
         await axios.get('http://localhost:8080/api/v1/auth/logout')
         authStore.logout();
-        router.push({ path: '/' });
+        router.push({ name: 'home' });
         message.success('Logged out successfully');
         window.location.reload();
     } catch (error) {

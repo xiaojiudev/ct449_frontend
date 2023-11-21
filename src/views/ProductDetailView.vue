@@ -17,7 +17,7 @@
             </a-col>
             <a-col class="gutter-row" :span="12">
                 <div v-if="loading">
-                    <a-skeleton active :paragraph="{ rows: 4 }"/>
+                    <a-skeleton active :paragraph="{ rows: 4 }" />
                 </div>
                 <div v-else>
                     <a-descriptions :title="product.name" :column="2">
@@ -33,8 +33,10 @@
                         </a-descriptions-item>
                         <a-descriptions-item label="Actions" :span="2">
                             <a-space wrap>
-                                <a-button type="dashed" :icon="h(PlusOutlined)" size="large">Add to cart</a-button>
-                                <a-button type="primary" :icon="h(ShoppingCartOutlined)" size="large">Buy now</a-button>
+                                <a-button type="dashed" :icon="h(PlusOutlined)" size="large"
+                                    @click="addToCart(product._id)">Add to cart</a-button>
+                                <a-button type="primary" :icon="h(ShoppingCartOutlined)" size="large"
+                                    @click="buyNow(product._id)">Buy now</a-button>
                             </a-space>
                         </a-descriptions-item>
                     </a-descriptions>
@@ -49,12 +51,106 @@ import { ref, onMounted, h } from 'vue';
 import axios from 'axios';
 import { useRouter, useRoute } from 'vue-router';
 import { PlusOutlined, ShoppingCartOutlined } from '@ant-design/icons-vue';
+import { useCartStore } from '../store/cartStore';
+import { useAuthStore } from '../store/authStore';
+import { message } from 'ant-design-vue';
+
+
+
 
 const loading = ref(true);
 const product = ref(null);
 
 const route = useRoute();
+const router = useRouter();
 const productId = route.params.id;
+
+const cartStore = useCartStore();
+const authStore = useAuthStore();
+
+
+const addToCart = async (productId) => {
+    try {
+        const isLoggedIn = authStore.getIsLoggedIn;
+
+        if (!isLoggedIn) {
+            message.info('Please login to add items to the cart', 2);
+            router.push({ name: 'login' });
+            return;
+        } else {
+            const addtoCartResponse = await axios.post('http://localhost:8080/api/v1/carts',
+                {
+                    productId,
+                    quantity: 1
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                },
+            );
+
+            if (addtoCartResponse.status == 201) {
+                message.success('Product added to cart successfully');
+                await cartStore.fetchUserCartRequest();
+            } else {
+                message.error('Add product to cart failed')
+            }
+
+            await showBadge();
+        }
+
+
+    } catch (error) {
+        message.error('Failed to add product to cart');
+    }
+}
+
+const showBadge = async () => {
+    const cartResponse = await axios.get('http://localhost:8080/api/v1/carts', {
+        withCredentials: true
+    });
+
+    if (cartResponse.status === 200) {
+        const cartItems = cartResponse.data.message.items;
+        await cartStore.setTotalItemsInCart(cartItems.length);
+    }
+}
+
+const buyNow = async (productId) => {
+    try {
+        const isLoggedIn = authStore.getIsLoggedIn;
+
+        if (!isLoggedIn) {
+            message.info('Please login to proceed to checkout', 2);
+            router.push({ name: 'login' });
+            return;
+        } else {
+            const addtoCartResponse = await axios.post(
+                'http://localhost:8080/api/v1/carts',
+                { productId, quantity: 1 },
+                {
+                    withCredentials: true,
+                    headers: { 'Content-Type': 'application/json' },
+                }
+            );
+
+            if (addtoCartResponse.status == 201) {
+                message.success('Product added to cart successfully');
+                await cartStore.fetchUserCartRequest();
+
+                router.push({ name: 'checkout' });
+            } else {
+                message.error('Add product to cart failed');
+            }
+
+            await showBadge();
+        }
+    } catch (error) {
+        message.error('Failed to add product to cart');
+    }
+};
 
 onMounted(async () => {
     try {
@@ -63,7 +159,7 @@ onMounted(async () => {
         if (response.status === 200) {
             product.value = response.data.product;
             loading.value = false;
-
+            console.log(product.value);
         }
     } catch (error) {
         console.error('Error fetching product details:', error);

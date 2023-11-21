@@ -4,64 +4,67 @@
         <a-breadcrumb-item>Checkout</a-breadcrumb-item>
     </a-breadcrumb>
     <div :style="{ background: '#fff', padding: '24px', minHeight: '80vh' }">
-        <a-row :gutter="[16, 16]">
-            <a-col :span="16">
-                <a-table :row-selection="rowSelection" :columns="columns" :data-source="cartItems">
-                    <template #bodyCell="{ column, text, record }">
-                        <template v-if="column.dataIndex === 'price'">
-                            <div>${{ text.toFixed(2) }}</div>
-                        </template>
-                        <template v-if="column.dataIndex === 'image'">
-                            <a-image :width="48" :height="48" style="border-radius: 5px; object-fit: cover;" :src="text" />
-                        </template>
-                        <template v-if="column.dataIndex === 'subTotal'">
-                            <div>${{ (record.quantity * record.price).toFixed(2) }}</div>
-                        </template>
-                        <template v-if="column.dataIndex === 'quantity'">
-                            <a-input-number id="inputNumber" v-model:value="record.quantity" defaultValue="1" :min="1"
-                                :max="record.maxQuantity" @change="updateQuantity(record)" />
-                        </template>
-                        <template v-if="column.dataIndex === 'action'">
-                            <a @click="removeItem(record.key)">Delete</a>
-                        </template>
-                    </template>
-                </a-table>
-            </a-col>
-            <a-col :span="2"></a-col>
-            <a-col :span="6">
-                <a-list bordered :data-source="data">
-                    <template #renderItem="{ item }">
-                        <a-list-item>
-                            <template v-if="item.type === 'address'">
-                                <strong>Address:</strong>
-                                <span
-                                    style="display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">{{
-                                        item.value }}</span>
+        <a-spin :spinning="isLoading">
+            <a-row :gutter="[16, 16]">
+                <a-col :span="16">
+                    <a-table :row-selection="rowSelection" :columns="columns" :data-source="cartItems">
+                        <template #bodyCell="{ column, text, record }">
+                            <template v-if="column.dataIndex === 'price'">
+                                <div>${{ text.toFixed(2) }}</div>
                             </template>
-                            <template v-if="item.type === 'shippingMethod'">
-                                <strong>Shipping Method:</strong>
-                                <a-radio :checked="true">COD</a-radio>
+                            <template v-if="column.dataIndex === 'image'">
+                                <a-image :width="48" :height="48" style="border-radius: 5px; object-fit: cover;"
+                                    :src="text" />
                             </template>
-                            <template v-if="item.type === 'shippingFee'">
-                                <strong>Shipping Fee:</strong> {{ cartStore.totalPrice ? item.value : 0 }}
+                            <template v-if="column.dataIndex === 'subTotal'">
+                                <div>${{ (record.quantity * record.price).toFixed(2) }}</div>
                             </template>
-                            <template v-else-if="item.type === 'merchandiseFee'">
-                                <strong>Merchandise Fee:</strong> {{ cartStore.totalPrice }}
+                            <template v-if="column.dataIndex === 'quantity'">
+                                <a-input-number id="inputNumber" v-model:value="record.quantity" defaultValue="1" :min="1"
+                                    :max="record.maxQuantity" @change="updateQuantity(record)" />
                             </template>
-                            <template v-else-if="item.type === 'totalFee'">
-                                <strong>Total Fee:</strong> {{ cartStore.totalPrice ? cartStore.totalPrice + 10 : 0 }}
+                            <template v-if="column.dataIndex === 'action'">
+                                <a @click="removeItem(record.key)">Delete</a>
                             </template>
-                        </a-list-item>
-                    </template>
-                    <template #header>
-                        <strong style="font-size: 18px; text-align: center; display: block;">Detail Order</strong>
-                    </template>
-                    <template #footer>
-                        <a-button type="primary" @click="checkout">Checkout</a-button>
-                    </template>
-                </a-list>
-            </a-col>
-        </a-row>
+                        </template>
+                    </a-table>
+                </a-col>
+                <a-col :span="2"></a-col>
+                <a-col :span="6">
+                    <a-list bordered :data-source="data">
+                        <template #renderItem="{ item }">
+                            <a-list-item>
+                                <template v-if="item.type === 'address'">
+                                    <strong>Address:</strong>
+                                    <span
+                                        style="display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">{{
+                                            item.value }}</span>
+                                </template>
+                                <template v-if="item.type === 'shippingMethod'">
+                                    <strong>Shipping Method:</strong>
+                                    <a-radio :checked="true">COD</a-radio>
+                                </template>
+                                <template v-if="item.type === 'shippingFee'">
+                                    <strong>Shipping Fee:</strong> {{ cartStore.totalPrice ? item.value : 0 }}
+                                </template>
+                                <template v-else-if="item.type === 'merchandiseFee'">
+                                    <strong>Merchandise Fee:</strong> {{ cartStore.totalPrice }}
+                                </template>
+                                <template v-else-if="item.type === 'totalFee'">
+                                    <strong>Total Fee:</strong> {{ cartStore.totalPrice ? cartStore.totalPrice + 10 : 0 }}
+                                </template>
+                            </a-list-item>
+                        </template>
+                        <template #header>
+                            <strong style="font-size: 18px; text-align: center; display: block;">Detail Order</strong>
+                        </template>
+                        <template #footer>
+                            <a-button type="primary" @click="checkout">Checkout</a-button>
+                        </template>
+                    </a-list>
+                </a-col>
+            </a-row>
+        </a-spin>
     </div>
 </template>
 
@@ -74,6 +77,7 @@ import { useRouter } from 'vue-router';
 
 
 const router = useRouter();
+const isLoading = ref(false);
 
 interface DataType {
     key: string | number;
@@ -112,10 +116,10 @@ const columns = [
 ];
 
 const cartStore = useCartStore();
-const cartItems = ref([]);
+const cartItems = ref<any[]>([]);
 
 const updateQuantity = async (record) => {
-    // Update quantity logic
+    isLoading.value = true;
     const { key, quantity } = record;
 
     try {
@@ -133,13 +137,15 @@ const updateQuantity = async (record) => {
         );
 
         await cartStore.fetchUserCartRequest()
+        isLoading.value = false;
     } catch (error) {
         console.error('Error adding product to cart:', error);
+        isLoading.value = false;
     }
 };
 
 const removeItem = async (key) => {
-
+    isLoading.value = true;
     await cartStore.removeAnItemRequest(key);
     await cartStore.fetchUserCartRequest();
 
@@ -153,7 +159,7 @@ const removeItem = async (key) => {
     }));
 
     message.success('Deleted product from cart successfully');
-
+    isLoading.value = false;
 };
 
 
@@ -187,6 +193,7 @@ const rowSelection = computed(() => {
 
 const removeItemsByKeys = async (keys) => {
     try {
+        isLoading.value = true;
         for (const key of keys) {
             await cartStore.removeAnItemRequest(key);
         }
@@ -203,10 +210,10 @@ const removeItemsByKeys = async (keys) => {
             subTotal: item.subTotal,
         }));
 
-        message.success('Deleted selected products from cart successfully');
+        isLoading.value = false;
     } catch (error) {
         console.error('Error deleting selected products from cart:', error);
-        message.error('Failed to delete selected products from cart');
+        isLoading.value = false;
     }
 };
 
@@ -222,17 +229,30 @@ const data = [
 // Checkout
 const checkout = async () => {
     try {
+        
+        if (selectedRowKeys.value.length === 0) {
+            message.warning('Please select at least one item to checkout.', 2);
+            return;
+        }
+        
+        isLoading.value = true;
+        const unselectedKeys = cartItems.value.map(item => item.key).filter(key => !selectedRowKeys.value.includes(key));
+        await removeItemsByKeys(unselectedKeys);
+
         const order = await axios.post('http://localhost:8080/api/v1/orders', {}, {
             withCredentials: true,
         });
 
         if (order.status === 201) {
             await cartStore.fetchUserCartRequest()
+            isLoading.value = false;
             router.push({ path: `/orders/${order.data.order._id}` });
         }
+        
 
     } catch (error) {
         message.error('Nothing in your cart, please add product then checkout!', 2);
+        isLoading.value = false;
     }
 };
 

@@ -31,8 +31,6 @@ export const useCartStore = defineStore('cart', {
                     image: item.image,
                 }));
 
-                console.log(cartResponse.data.message.totalPrice);
-
                 this.setCartItems(cartItems, cartItems.length, cartResponse.data.message.totalPrice);
             } catch (error) {
                 console.error('Error fetching user cart:', error);
@@ -60,6 +58,8 @@ export const useCartStore = defineStore('cart', {
                         withCredentials: true,
                     }
                 );
+
+                await this.fetchUserCartRequest()
             } catch (error) {
                 throw new Error('Error when deleting product from cart');
             }

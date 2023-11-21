@@ -7,7 +7,7 @@
             <a-row :gutter="[24, 24]">
                 <a-col class="gutter-row" :span="6">
                     <div class="gutter-box">
-                        <a-menu v-model:selectedKeys="currentSidebar" mode="vertical" :items="items" />
+                        <a-menu v-model:selectedKeys="currentSidebar" mode="vertical" :items="items" style="border: 1px solid rgb(235, 237, 240); border-radius: 5px; padding: 22px 8px; "/>
                     </div>
                 </a-col>
                 <a-col class="gutter-row" :span="18">
@@ -58,6 +58,7 @@
 
 <script setup>
 import { ShoppingCartOutlined } from '@ant-design/icons-vue';
+import { RouterLink, useRouter } from 'vue-router'
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { message } from 'ant-design-vue';
@@ -71,34 +72,42 @@ const products = ref([]);
 const totalProducts = ref(0);
 const cartStore = useCartStore();
 const authStore = useAuthStore();
-
+const router = useRouter();
 
 const addToCart = async (productId) => {
     try {
-        const addtoCartResponse = await axios.post('http://localhost:8080/api/v1/carts',
-            {
-                productId,
-                quantity: 1
-            },
-            {
-                withCredentials: true,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            },
-        );
+        const isLoggedIn = authStore.getIsLoggedIn;
 
-        if (addtoCartResponse.status == 201) {
-            message.success('Product added to cart successfully');
-            await cartStore.fetchUserCartRequest();
+        if (!isLoggedIn) {
+            message.info('Please login to add items to the cart', 2);
+            router.push({ name: 'login' });
+            return;
         } else {
-            message.error('Add product to cart failed')
+            const addtoCartResponse = await axios.post('http://localhost:8080/api/v1/carts',
+                {
+                    productId,
+                    quantity: 1
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                },
+            );
+
+            if (addtoCartResponse.status == 201) {
+                message.success('Product added to cart successfully');
+                await cartStore.fetchUserCartRequest();
+            } else {
+                message.error('Add product to cart failed')
+            }
+
+            await showBadge();
         }
 
-        await showBadge();
 
     } catch (error) {
-        console.error('Error adding product to cart:', error);
         message.error('Failed to add product to cart');
     }
 }
