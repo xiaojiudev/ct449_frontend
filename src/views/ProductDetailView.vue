@@ -188,4 +188,10 @@ span.ant-descriptions-item-content {
     height: 100% !important;
     width: 100% !important;
 }
+
+.ant-image-preview-img {
+    width: 500px !important;
+    height: 500px !important;
+    object-fit: cover !important;
+}
 </style>
