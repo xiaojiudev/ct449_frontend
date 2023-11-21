@@ -40,13 +40,19 @@ const router = createRouter({
       path: '/checkout',
       name: 'checkout',
       component: () => import('../views/CheckoutView.vue'),
-      meta: {requiresAuth: true,},
+      meta: { requiresAuth: true, },
+    },
+    {
+      path: '/myOrders',
+      name: 'myOrders',
+      component: () => import('../views/TrackOrderView.vue'),
+      meta: { requiresAuth: true, },
     },
     {
       path: '/orders/:id',
       name: 'orders',
       component: () => import('../views/ThankYouView.vue'),
-      meta: {requiresAuth: true,},
+      meta: { requiresAuth: true, },
     },
   ]
 })
@@ -55,7 +61,7 @@ router.beforeEach((to, from, next) => {
 
   if (to.matched.some(route => route.meta.requiresAuth)) {
 
-    const token = getCookie('token'); 
+    const token = getCookie('token');
 
     if (!token) {
 
@@ -72,7 +78,7 @@ router.beforeEach((to, from, next) => {
 export function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
-  
+
   if (parts.length === 2) {
     return parts.pop().split(';').shift();
   }

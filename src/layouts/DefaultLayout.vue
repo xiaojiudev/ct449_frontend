@@ -73,6 +73,9 @@
                                     <a href="javascript:;">My Cart</a>
                                 </a-menu-item>
                                 <a-menu-item>
+                                    <RouterLink to="/myOrders">My Orders</RouterLink>
+                                </a-menu-item>
+                                <a-menu-item>
                                     <a href="javascript:;">My Favorite</a>
                                 </a-menu-item>
                                 <a-menu-item @click="handleLogout">
