@@ -54,6 +54,11 @@ const router = createRouter({
       component: () => import('../views/ThankYouView.vue'),
       meta: { requiresAuth: true, },
     },
+    {
+      path: '/:catchAll(.*)', 
+      name: 'NotFound',
+      component: () => import('../views/404NotFoundView.vue'), 
+    },
   ]
 })
 
