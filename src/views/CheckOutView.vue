@@ -229,12 +229,12 @@ const data = [
 // Checkout
 const checkout = async () => {
     try {
-        
+
         if (selectedRowKeys.value.length === 0) {
             message.warning('Please select at least one item to checkout.', 2);
             return;
         }
-        
+
         isLoading.value = true;
         const unselectedKeys = cartItems.value.map(item => item.key).filter(key => !selectedRowKeys.value.includes(key));
         await removeItemsByKeys(unselectedKeys);
@@ -248,10 +248,16 @@ const checkout = async () => {
             isLoading.value = false;
             router.push({ path: `/orders/${order.data.order._id}` });
         }
-        
+
 
     } catch (error) {
-        message.error('Nothing in your cart, please add product then checkout!', 2);
+        console.log(error.response.data.message);
+        if (error.response.data.message.includes('Insufficient quantity in stock for products')) {
+            message.error(error.response.data.message, 2)
+        } else {
+            message.error('Nothing in your cart, please add product then checkout!', 2);
+        }
+
         isLoading.value = false;
     }
 };
