@@ -7,12 +7,19 @@
             <a-row :gutter="[24, 24]">
                 <a-col class="gutter-row" :span="6">
                     <div class="gutter-box">
-                        <a-menu v-model:selectedKeys="currentSidebar" mode="vertical" :items="items" style="border: 1px solid rgb(235, 237, 240); border-radius: 5px; padding: 22px 8px; "/>
+                        <a-menu v-model:selectedKeys="currentSidebar" mode="vertical" :items="items"
+                            @click="handleMenuClick"
+                            style="border: 1px solid rgb(235, 237, 240); border-radius: 5px; padding: 22px 8px; " />
                     </div>
                 </a-col>
                 <a-col class="gutter-row" :span="18">
                     <div class="gutter-box">
                         <a-row :gutter="[16, 16]">
+                            <!-- Search -->
+                            <a-col :span="24">
+                                <a-input-search placeholder="input search text" style="width: 200px; float: right;"
+                                    @search="onSearch" :loading="isSearching" />
+                            </a-col>
                             <!-- List of product here a-col is 1 product -->
                             <a-col :span="6" v-for="product in displayedProducts" :key="product._id"
                                 style="user-select: none;">
@@ -73,6 +80,7 @@ const totalProducts = ref(0);
 const cartStore = useCartStore();
 const authStore = useAuthStore();
 const router = useRouter();
+const isSearching = ref(false);
 
 const addToCart = async (productId) => {
     try {
@@ -112,23 +120,64 @@ const addToCart = async (productId) => {
     }
 }
 
+
+const onSearch = async (searchValue) => {
+    // console.log('use value', searchValue);
+    isSearching.value = true;
+    await fetchAllProducts(searchValue);
+    isSearching.value = false;
+};
+
+const handleMenuClick = async (e) => {
+    //   console.log('click', e.key);
+    if (e.key === 'flower') {
+        await fetchAllProducts(null, 'flower');
+        return;
+    }
+
+    if (e.key === 'bag') {
+        await fetchAllProducts(null, 'bag');
+        return;
+    }
+
+    await fetchAllProducts();
+
+};
+
 onMounted(async () => {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/products');
-        if (response.status === 200) {
-            products.value = response.data.product;
-            totalProducts.value = response.data.total_products;
-        }
 
-        if (authStore.getIsLoggedIn === true) {
-            await cartStore.fetchUserCartRequest();
-            await showBadge();
-        }
+        await fetchAllProducts()
 
     } catch (error) {
         console.error('Error fetching products:', error);
     }
 });
+
+const fetchAllProducts = async (searchValue, category) => {
+
+    let url = 'http://localhost:8080/api/v1/products'
+
+    if (searchValue) {
+        url += `?search=${searchValue}`
+    }
+
+    if (category) {
+        url += `?category=${category}`
+    }
+
+
+    const response = await axios.get(url);
+    if (response.status === 200) {
+        products.value = response.data.product;
+        totalProducts.value = response.data.total_products;
+    }
+
+    if (authStore.getIsLoggedIn === true) {
+        await cartStore.fetchUserCartRequest();
+        await showBadge();
+    }
+};
 
 
 const showBadge = async () => {
@@ -175,6 +224,12 @@ const items = ref([
         icon: () => h(RightOutlined),
         label: 'Flower',
         title: 'Flower',
+    },
+    {
+        key: 'bag',
+        icon: () => h(RightOutlined),
+        label: 'Hand Bag',
+        title: 'Hand Bag',
     },
 
 ]);
