@@ -36,7 +36,9 @@
                     </a-drawer>
                 </template>
                 <template v-if="column.dataIndex === 'status'">
-                    <a-tag :color="text === 'pending' ? 'pink' : text === 'delivered' ? 'cyan' : text ==='paid' ? 'green': 'red'">{{ text }}</a-tag>
+                    <a-tag
+                        :color="text === 'pending' ? 'pink' : text === 'delivered' ? 'cyan' : text === 'paid' ? 'green' : 'red'">{{
+                            text }}</a-tag>
                 </template>
                 <template v-if="column.dataIndex === 'operation'">
                     <a-popconfirm title="Sure to received?" :disabled="!shouldShowReceivedButton(record.status)"
@@ -85,24 +87,44 @@ const columns = [
         dataIndex: 'name',
     },
     {
-        title: 'address',
+        title: 'Address',
         dataIndex: 'address',
+    },
+    {
+        title: 'Date Order',
+        dataIndex: 'date',
+        sorter: (a, b) => {
+            const dateA = new Date(a.date.replace(" at", "")).getTime();
+            const dateB = new Date(b.date.replace(" at", "")).getTime();
+
+            return dateA - dateB;
+        },
     },
     {
         title: 'Subtotal',
         dataIndex: 'subtotal',
+        sorter: (a, b) => a.subtotal - b.subtotal,
     },
     {
         title: 'Shipping Fee',
         dataIndex: 'shippingFee',
+        sorter: (a, b) => a.shippingFee - b.shippingFee,
     },
     {
         title: 'Total Amount',
         dataIndex: 'total_amount',
+        sorter: (a, b) => a.total_amount - b.total_amount,
     },
     {
         title: 'Status',
         dataIndex: 'status',
+        filters: [
+            { text: 'pending', value: 'pending' },
+            { text: 'canceled', value: 'canceled' },
+            { text: 'delivered', value: 'delivered' },
+            { text: 'paid', value: 'paid' },
+        ],
+        onFilter: (value, record) => record.status.indexOf(value) === 0,
     },
     {
         title: 'Operation',
@@ -156,6 +178,14 @@ const fetchOrders = async () => {
                 order_id: order._id,
                 name: order.userFullname,
                 address: order.address,
+                date: new Date(order.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    second: 'numeric',
+                }),
                 subtotal: order.subtotal,
                 shippingFee: order.shippingFee,
                 total_amount: order.total,

@@ -17,7 +17,7 @@
                         <a-row :gutter="[16, 16]">
                             <!-- Search -->
                             <a-col :span="24">
-                                <a-input-search placeholder="input search text" style="width: 200px; float: right;"
+                                <a-input-search placeholder="Type to search" style="width: 200px; float: right;"
                                     @search="onSearch" :loading="isSearching" />
                             </a-col>
                             <!-- List of product here a-col is 1 product -->
@@ -54,7 +54,7 @@
                 </a-col>
                 <a-col class="gutter-row" :span="6"></a-col>
                 <a-col class="gutter-row" :span="18" style="display: flex; justify-content: center;">
-                    <a-pagination v-model:current="current" :total="totalProducts" @change="handleChangePage"
+                    <a-pagination v-model:current="current" :total="totalProducts" @change="handleChangePage" 
                         :page-size="8" />
                 </a-col>
 
@@ -137,6 +137,7 @@ const handleMenuClick = async (e) => {
 
     if (e.key === 'bag') {
         await fetchAllProducts(null, 'bag');
+        current.value = 1;
         return;
     }
 
@@ -165,7 +166,6 @@ const fetchAllProducts = async (searchValue, category) => {
     if (category) {
         url += `?category=${category}`
     }
-
 
     const response = await axios.get(url);
     if (response.status === 200) {
