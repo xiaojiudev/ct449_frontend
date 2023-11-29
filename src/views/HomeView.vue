@@ -224,7 +224,6 @@ const handleChangePage = (pageNumber) => {
 
 import { h, } from 'vue';
 import { UnorderedListOutlined, RightOutlined } from '@ant-design/icons-vue';
-import { library } from '@fortawesome/fontawesome-svg-core';
 
 const currentSidebar = ref(['mail']);
 const items = ref([
