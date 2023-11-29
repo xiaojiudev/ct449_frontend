@@ -15,7 +15,8 @@
             </a-menu>
             <div style="display: flex; justify-content: space-between; width: 100px;">
                 <div style="display: flex; align-items: center;">
-                    <a-dropdown :overlay-style="{ width: '500px' }">
+                    <!-- Cart here -->
+                    <a-dropdown :overlay-style="{ width: '500px' }" >
                         <a-badge :count="cartStore.totalItemsInCart" size="small">
                             <a-avatar shape="circle" size="large" style="background-color: transparent;">
                                 <template #icon>

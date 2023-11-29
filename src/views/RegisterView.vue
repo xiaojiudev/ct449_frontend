@@ -11,6 +11,10 @@
                 <a-input-password v-model:value="formState.password" />
             </a-form-item>
 
+            <a-form-item label="Confirm Password" name="confirmpw">
+                <a-input-password v-model:value="formState.confirmpw" />
+            </a-form-item>
+
             <a-form-item label="Name" name="name">
                 <a-input v-model:value="formState.name" />
             </a-form-item>
@@ -44,6 +48,7 @@ const router = useRouter();
 interface FormState {
     email: string;
     password: string;
+    confirmpw: string;
     name: string;
     agree: string[];
 }
@@ -51,6 +56,7 @@ interface FormState {
 const formState = reactive<FormState>({
     email: '',
     password: '',
+    confirmpw: '',
     name: '',
     agree: [],
 });
@@ -67,6 +73,12 @@ const rules: Record<string, Rule[]> = {
         {
             required: true,
             message: 'Please input your password!',
+        }
+    ],
+    confirmpw: [
+        {
+            required: true,
+            message: 'Please input your confirm password!',
         }
     ],
     name: [

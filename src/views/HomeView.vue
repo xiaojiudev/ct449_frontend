@@ -1,6 +1,7 @@
 <template>
     <a-breadcrumb :style="{ margin: '16px 0' }">
         <a-breadcrumb-item>Home</a-breadcrumb-item>
+
     </a-breadcrumb>
     <div :style="{ background: '#fff', padding: '24px', minHeight: '80vh' }">
         <main>
@@ -54,7 +55,7 @@
                 </a-col>
                 <a-col class="gutter-row" :span="6"></a-col>
                 <a-col class="gutter-row" :span="18" style="display: flex; justify-content: center;">
-                    <a-pagination v-model:current="current" :total="totalProducts" @change="handleChangePage" 
+                    <a-pagination v-model:current="current" :total="totalProducts" @change="handleChangePage"
                         :page-size="8" />
                 </a-col>
 
@@ -64,13 +65,14 @@
 </template>
 
 <script setup>
-import { ShoppingCartOutlined } from '@ant-design/icons-vue';
+import { BankOutlined, CrownOutlined, KeyOutlined, LikeOutlined, ShopOutlined, ShoppingCartOutlined, ShoppingOutlined, SlackOutlined } from '@ant-design/icons-vue';
 import { RouterLink, useRouter } from 'vue-router'
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { message } from 'ant-design-vue';
 import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
+
 
 
 
@@ -141,6 +143,24 @@ const handleMenuClick = async (e) => {
         return;
     }
 
+    if (e.key === 'keychain') {
+        await fetchAllProducts(null, 'keychain');
+        current.value = 1;
+        return;
+    }
+
+    if (e.key === 'beanie') {
+        await fetchAllProducts(null, 'beanie');
+        current.value = 1;
+        return;
+    }
+
+    if (e.key === 'glove') {
+        await fetchAllProducts(null, 'glove');
+        current.value = 1;
+        return;
+    }
+
     await fetchAllProducts();
 
 };
@@ -177,6 +197,7 @@ const fetchAllProducts = async (searchValue, category) => {
         await cartStore.fetchUserCartRequest();
         await showBadge();
     }
+    isSearching.value = false;
 };
 
 
@@ -203,6 +224,7 @@ const handleChangePage = (pageNumber) => {
 
 import { h, } from 'vue';
 import { UnorderedListOutlined, RightOutlined } from '@ant-design/icons-vue';
+import { library } from '@fortawesome/fontawesome-svg-core';
 
 const currentSidebar = ref(['mail']);
 const items = ref([
@@ -215,21 +237,39 @@ const items = ref([
     { type: 'divider' },
     {
         key: 'all',
-        icon: () => h(RightOutlined),
+        icon: () => h(ShopOutlined),
         label: 'All Products',
         title: 'All Products',
     },
     {
         key: 'flower',
-        icon: () => h(RightOutlined),
+        icon: () => h(SlackOutlined),
         label: 'Flower',
         title: 'Flower',
     },
     {
         key: 'bag',
-        icon: () => h(RightOutlined),
+        icon: () => h(ShoppingOutlined),
         label: 'Hand Bag',
         title: 'Hand Bag',
+    },
+    {
+        key: 'keychain',
+        icon: () => h(KeyOutlined),
+        label: 'Keychain',
+        title: 'Keychain',
+    },
+    {
+        key: 'beanie',
+        icon: () => h(CrownOutlined),
+        label: 'Beanie',
+        title: 'Beanie',
+    },
+    {
+        key: 'glove',
+        icon: () => h(LikeOutlined),
+        label: 'Glove',
+        title: 'Glove',
     },
 
 ]);
